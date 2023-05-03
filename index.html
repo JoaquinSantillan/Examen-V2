@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Categorías y subcategorías</title>
+  </head>
+  <body>
+    <h1>Categorías y subcategorías</h1>
+    <form onsubmit="addCategory(); return false;">
+      <label for="category-name">Nombre de la categoría:</label>
+      <input type="text" id="category-name">
+      <button type="submit">Agregar categoría</button>
+    </form>
+    <button onclick="sortById()">Ordenar por ID</button>
+    <button onclick="shuffle()">Desordenar por ID</button>
+    <div id="categories-container"></div>
+    <script>
+      let categories = []; 
+      
+      function addCategory() {
+        let categoryName = document.getElementById("category-name").value;
+        if (categoryName) {
+          let category = {
+            name: categoryName,
+            subcategories: [],
+          };
+          categories.push(category);
+          renderCategories();
+        }
+      }
+      
+      function addSubcategory(categoryIndex) {
+        let subcategoryName = document.getElementById(`subcategory-name-${categoryIndex}`).value;
+        if (subcategoryName) {
+          let subcategory = {
+            name: subcategoryName,
+            id: categories[categoryIndex].subcategories.length + 1,
+          };
+          categories[categoryIndex].subcategories.push(subcategory);
+          renderCategories();
+        }
+      }
+      
+      function sortById() {
+        for (let category of categories) {
+          category.subcategories.sort((a, b) => a.id - b.id);
+        }
+        renderCategories();
+      }
+      
+      function shuffle() {
+        for (let category of categories) {
+          for (let i = category.subcategories.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [category.subcategories[i], category.subcategories[j]] = [
+              category.subcategories[j],
+              category.subcategories[i],
+            ];
+          }
+        }
+        renderCategories();
+      }
+      
+      function renderCategories() {
+        let categoriesContainer = document.getElementById("categories-container");
+        categoriesContainer.innerHTML = "";
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let categoryDiv = document.createElement("div");
+          categoryDiv.innerHTML = `
+            <h3>${category.name}</h3>
+            <ul>
+              ${category.subcategories
+                .map(
+                  (subcategory) =>
+                    `<li>${subcategory.name} (ID: ${subcategory.id})</li>`
+                )
+                .join("")}
+            </ul>
+            <form onsubmit="addSubcategory(${i}); return false;">
+              <label for="subcategory-name-${i}">Nombre de la subcategoría:</label>
+              <input type="text" id="subcategory-name-${i}">
+              <button type="submit">Agregar subcategoría</button>
+            </form>
+          `;
+          categoriesContainer.appendChild(categoryDiv);
+        }
+      }
+    </script>
+  </body>
+</html>
